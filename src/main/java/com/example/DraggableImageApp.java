@@ -27,18 +27,27 @@ public class DraggableImageApp extends Application {
         anchorPane.getChildren().add(imageView);
 
         imageView.setOnMousePressed(event -> {
+            /**
+             * Wandelt Scene-Koordinaten (Fenster) in lokale Koordinaten (AnchorPane) um.
+             * Berücksichtigt automatisch die Scroll-Position.
+             */
             Point2D localPos = anchorPane.sceneToLocal(event.getSceneX(), event.getSceneY());
+            
+            // Berechnet den Klick-Abstand (Offset) zum Bildrand, um Sprünge zu vermeiden.
             offsetX = localPos.getX() - AnchorPane.getLeftAnchor(imageView);
             offsetY = localPos.getY() - AnchorPane.getTopAnchor(imageView);
             event.consume();
         });
 
         imageView.setOnMouseDragged(event -> {
+            // Aktuelle Mausposition im Hintergrund (AnchorPane) ermitteln.
             Point2D localPos = anchorPane.sceneToLocal(event.getSceneX(), event.getSceneY());
+            
+            // Neue Position unter Abzug des Offsets berechnen.
             double newX = localPos.getX() - offsetX;
             double newY = localPos.getY() - offsetY;
 
-            // Clamp to AnchorPane bounds
+            // Begrenzung: Verhindert das Verschieben aus dem sichtbaren Bereich (Clamping).
             newX = Math.max(0, Math.min(newX, anchorPane.getPrefWidth() - imageView.getImage().getWidth()));
             newY = Math.max(0, Math.min(newY, anchorPane.getPrefHeight() - imageView.getImage().getHeight()));
 
